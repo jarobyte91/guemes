@@ -1,0 +1,13 @@
+# on the CC server
+
+https://docs.computecanada.ca/wiki/Jupyter
+
+module load python/3.6
+
+source ~/envs/guemes/bin/activate
+
+salloc --time=1:0:0 --ntasks=1 --cpus-per-task=2 --mem-per-cpu=1024M --account=def-emilios srun $VIRTUAL_ENV/bin/notebook.sh
+
+# on the local client
+
+sshuttle --dns -Nr jarobyte@beluga.computecanada.ca
