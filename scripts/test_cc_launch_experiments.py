@@ -1,15 +1,10 @@
 from char_lstm import CharLSTM
 from multiprocessing import Pool
 import pandas as pd
-from os import cpu_count
+from os import cpu_count, mkdir
 from random import randint
 from timeit import default_timer
 import datetime
-
-data = pd.read_pickle("../data/tidy/noisy_opus_sample.pkl")
-vocabulary_size = 136
-
-print("starting experiments")
 
 def experiment(order):
     print("experiment {} started".format(order))
@@ -46,11 +41,14 @@ def experiment(order):
             "training_time":training_time, 
             "losses":[list(enumerate(losses))]}
 
+
+folder = "experiments/" + str(datetime.datetime.now() + "/")
+mkdir(folder)
+mkdir(folder + "checkpoints/")
+data = pd.read_pickle("../data/tidy/noisy_opus_sample.pkl")
+vocabulary_size = 136
 sample_size = 6
 p = Pool(cpu_count() - 1)
-
-print("creating results dataframe")
-
 results = pd.DataFrame(columns = ["experiment",
                                   "embedding_dim", 
                                   "hidden_dim", 
@@ -61,9 +59,6 @@ results = pd.DataFrame(columns = ["experiment",
                                   "training_time", 
                                   "epoch",
                                   "loss"])\
-
-print("writing data")
-
 for e in p.imap_unordered(experiment, range(sample_size)):
     e = pd.DataFrame(e)\
     .explode("losses")\
