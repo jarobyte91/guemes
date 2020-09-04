@@ -4,3 +4,5 @@
 *.pt
 *.csv
 *.pkl
+slurm*
+*.pyc
