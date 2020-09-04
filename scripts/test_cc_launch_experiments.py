@@ -13,7 +13,7 @@ def experiment(order):
     layers = randint(1, 4)
     lr = 10 ** randint(-5, -1)
     epochs = 2
-    batch_size = randint(2, 10)
+    batch_size = 10
     start = default_timer()
     
     model = CharLSTM(embedding_dim, hidden_dim, vocabulary_size, layers)
@@ -22,13 +22,13 @@ def experiment(order):
                              lr = lr,  
                              plot = False, 
                              epochs = epochs, 
-                             batch_size = batch_size, 
                              verbose = False,
-                             save_path = "checkpoints/{}_{}_{}_{}_{}.pt".format(embedding_dim, 
-                                                                                hidden_dim, 
-                                                                                layers, 
-                                                                                str(lr).replace(".", ""), 
-                                                                                epochs))
+                             batch_size = batch_size,
+                             save_path = folder + "/checkpoints/{}_{}_{}_{}_{}.pt".format(embedding_dim, 
+                                                                                          hidden_dim, 
+                                                                                          layers, 
+                                                                                          str(lr).replace(".", ""), 
+                                                                                          epochs))
     training_time = default_timer() - start
     print("experiment {} finished".format(order))
     return {"experiment":order, 
@@ -41,10 +41,9 @@ def experiment(order):
             "training_time":training_time, 
             "losses":[list(enumerate(losses))]}
 
-
-folder = "experiments/" + str(datetime.datetime.now() + "/")
+folder = "experiments/" + str(datetime.datetime.now())
 mkdir(folder)
-mkdir(folder + "checkpoints/")
+mkdir(folder + "/checkpoints")
 data = pd.read_pickle("../data/tidy/noisy_opus_sample.pkl")
 vocabulary_size = 136
 sample_size = 6
@@ -58,7 +57,8 @@ results = pd.DataFrame(columns = ["experiment",
                                   "batch_size", 
                                   "training_time", 
                                   "epoch",
-                                  "loss"])\
+                                  "loss"])
+
 for e in p.imap_unordered(experiment, range(sample_size)):
     e = pd.DataFrame(e)\
     .explode("losses")\
@@ -67,5 +67,5 @@ for e in p.imap_unordered(experiment, range(sample_size)):
     .drop("losses", axis = 1)
     
     results = results.append(e)
-    results.to_csv("experiments/{}.csv".format(date.today()), index = False)
+    results.to_csv("{}/log.csv".format(folder), index = False)
 
